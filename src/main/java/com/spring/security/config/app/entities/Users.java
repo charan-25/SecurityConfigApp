@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
@@ -14,7 +15,7 @@ import java.util.List;
 public class Users implements UserDetails {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "usr_id")
     private Integer userId;
 
@@ -38,6 +39,18 @@ public class Users implements UserDetails {
     @Column(name="usr_mob")
     private String mobile;
 
+    @OneToOne(cascade = CascadeType.REMOVE)
+    @JoinColumn(name = "usr_role_id",referencedColumnName = "role_id",nullable = false)
+    private Roles role;
+
+    public Roles getRole() {
+        return role;
+    }
+
+    public Users setRole(Roles role) {
+        this.role = role;
+        return this;
+    }
 
     public Integer getUserId() {
         return userId;
@@ -67,21 +80,24 @@ public class Users implements UserDetails {
         return mobile;
     }
 
-    public void setMobile(String mobile) {
+    public Users setMobile(String mobile) {
         this.mobile = mobile;
+        return this;
     }
 
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
+    public Users setName(String name) {
         this.name = name;
+        return this;
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of();
+        SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_"+role.getName().toString());
+        return List.of(authority);
     }
 
     @Override
@@ -89,12 +105,14 @@ public class Users implements UserDetails {
         return password;
     }
 
-    public void setPassword(String password) {
+    public Users setPassword(String password) {
         this.password = password;
+        return this;
     }
 
-    public void setUserName(String email) {
+    public Users setUserName(String email) {
         this.email = email;
+        return this;
     }
 
     @Override
